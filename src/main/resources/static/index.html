@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee App</title>
+</head>
+<body>
+<h2>Add Employee</h2>
+
+<input id="name" placeholder="Name">
+<input id="email" placeholder="Email">
+<input id="department" placeholder="Department">
+<input id="salary" placeholder="Salary">
+<button onclick="addOrUpdateEmployee()">Save</button>
+
+
+<h2>Employee List</h2>
+<ul id="list"></ul>
+<script>
+let selectedId = null;
+
+function addOrUpdateEmployee() {
+    const emp = {
+        name: name.value,
+        email: email.value,
+        department: department.value,
+        salary: salary.value
+    };
+
+    if (selectedId == null) {
+        // CREATE
+        fetch("/api/employees", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(emp)
+        }).then(() => loadEmployees());
+    } else {
+        // UPDATE
+        fetch("/api/employees/" + selectedId, {
+            method: "PUT",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(emp)
+        }).then(() => {
+            selectedId = null;
+            loadEmployees();
+        });
+    }
+    clearForm();
+}
+
+function loadEmployees() {
+    fetch("/api/employees")
+        .then(r => r.json())
+        .then(data => {
+            list.innerHTML = "";
+            data.forEach(e => {
+                list.innerHTML += `
+                  <li>
+                    ${e.id} | ${e.name} | ${e.email} | ${e.department} | ${e.salary}
+                    <button onclick="editEmployee(${e.id}, '${e.name}', '${e.email}', '${e.department}', ${e.salary})">Edit</button>
+                    <button onclick="deleteEmployee(${e.id})">Delete</button>
+                  </li>`;
+            });
+        });
+}
+
+function editEmployee(id, name, email, department, salary) {
+    selectedId = id;
+    document.getElementById("name").value = name;
+    document.getElementById("email").value = email;
+    document.getElementById("department").value = department;
+    document.getElementById("salary").value = salary;
+}
+
+function deleteEmployee(id) {
+    fetch("/api/employees/" + id, { method: "DELETE" })
+        .then(() => loadEmployees());
+}
+
+function clearForm() {
+    name.value = "";
+    email.value = "";
+    department.value = "";
+    salary.value = "";
+}
+
+loadEmployees();
+</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+CREATE TABLE employees (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    department VARCHAR(100) NOT NULL,
+    salary DOUBLE NOT NULL
+);
